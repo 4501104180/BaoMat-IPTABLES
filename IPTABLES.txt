@@ -1,0 +1,69 @@
+
+#   |-------------------------------------------------------------------|
+#   |                                                                   |
+#   |----------------Kịch bản thực hành_IPTABLES------------------------|
+#   |                                                       Nhóm DOT    |
+#   |-------------------------------------------------------------------|
+
+#--------------------------Quyền Root && check ip -----------------------
+#Quyền root
+sudo -i 
+
+#Check ip Window
+ipconfig
+
+#check ip linux
+ip addr show
+
+
+#--------------------------Danh sách rules-------------------------------
+#Xem danh sách các rules
+iptables -L -v
+
+
+#--------------------------Cho phép--------------------------------------
+#Cho phép tất cả kết nối
+iptables -A INPUT -i lo -j ACCEPT
+
+#Cho phép toàn bộ truy cập TCP cổng 22 SSH
+iptables -A INPUT -p tcp -dport 22 -j ACCEPT
+
+
+#--------------------------Xóa-------------------------------------------
+#Xoá toàn bộ quy tắc
+iptables -F
+
+#Xoá Tuỳ chọn quy tắc
+iptables -L --line-number
+iptables -D INPUT 1
+
+
+#--------------------------CHẶN------------------------------------------
+
+#-----------Chặn IP (server + ubuntu + Window)-----------------------
+#Chặn toàn bộ truy cập
+iptables -A INPUT -j DROP
+
+#Cho phép kết nối IP(192.168.158.128)
+iptables -I INPUT -s 192.168.158.128 -j ACCEPT
+
+#Chặn kết nối IP(192.168.158.128)
+iptables -A INPUT -s 192.168.158.128 -j DROP
+
+
+#-----------Chặn SSH (server + ubuntu(PuTTy) +window(PuTTy))---------
+#Chặn Kết nối đến dport SSH
+iptables -A INPUT -p tcp --dport 22 -j DROP
+
+#Cho phép kết nối đến dport SSH từ IP(192.168.158.128)
+iptables -I INPUT -p tcp --dport ssh -s 192.168.158.128 -j ACCEPT
+
+#-----------Chặn Ping (server + ubuntu + window)-------------
+#Chặn Ping (Thông báo lỗi)
+iptables -A INPUT -p icmp --icmp-type echo-request -j REJECT
+
+#Chặn Ping (Không thông báo lỗi)
+iptables -A INPUT -p icmp --icmp-type echo-request -j DROP
+
+#Cấm Ping vào Firewall
+iptables -A INPUT -p icmp --icmp-type any -j DROP
